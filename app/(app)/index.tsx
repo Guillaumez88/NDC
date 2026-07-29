@@ -82,7 +82,7 @@ export default function Accueil() {
         </View>
       </ScrollView>
 
-      <BarreInferieure actif="accueil" couleurs={c} />
+      <BarreInferieure actif="accueil" couleurs={c} afficherAjout />
     </View>
   );
 }

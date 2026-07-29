@@ -42,8 +42,11 @@ export function useProgression(
     // Toute séance compte : une séance est éjaculatoire par définition.
     const debut30j = new Date(maintenant.getTime() - 30 * 86_400_000);
     const rollingCount = dates.filter((d) => d >= debut30j && d <= maintenant).length;
-    const objectif30 = Math.max(1, objectifMensuel);
-    const ringPct = Math.min(100, Math.round((rollingCount / objectif30) * 100));
+    // Un objectif à 0 est autorisé (« pas d'objectif ») : il est alors toujours
+    // atteint, et il faut éviter la division par zéro sur le pourcentage.
+    const objectif30 = Math.max(0, Math.round(objectifMensuel));
+    const ringPct =
+      objectif30 === 0 ? 100 : Math.min(100, Math.round((rollingCount / objectif30) * 100));
     const encourage =
       rollingCount >= objectif30
         ? 'Objectif atteint sur les 30 derniers jours. Continuez à votre rythme.'
@@ -100,7 +103,7 @@ export function useProgression(
       niveauLogo: Math.min(palierIndex, 5),
       semaineJours,
       semaineCount,
-      objectifHebdomadaire: Math.max(1, objectifHebdomadaire),
+      objectifHebdomadaire: Math.max(0, Math.round(objectifHebdomadaire)),
       monthLabel,
     };
   }, [seances, objectifMensuel, objectifHebdomadaire]);

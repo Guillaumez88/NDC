@@ -20,20 +20,24 @@ const ONGLETS: {
 type Props = {
   actif: Onglet;
   couleurs: Palette;
+  // Volontairement réservé à l'accueil : ailleurs, la barre n'affiche que les onglets.
+  afficherAjout?: boolean;
 };
 
-export function BarreInferieure({ actif, couleurs: c }: Props) {
+export function BarreInferieure({ actif, couleurs: c, afficherAjout = false }: Props) {
   const router = useRouter();
   const styles = creerStyles(c);
 
   return (
     <View style={styles.conteneur} pointerEvents="box-none">
-      <View style={styles.boutonAjoutZone}>
-        <Pressable style={styles.boutonAjout} onPress={() => router.push('/ajouter')}>
-          <Feather name="plus" size={20} color="#FFF8F2" />
-          <Text style={styles.boutonAjoutTexte}>Ajouter une séance</Text>
-        </Pressable>
-      </View>
+      {afficherAjout && (
+        <View style={styles.boutonAjoutZone}>
+          <Pressable style={styles.boutonAjout} onPress={() => router.push('/ajouter')}>
+            <Feather name="plus" size={20} color="#FFF8F2" />
+            <Text style={styles.boutonAjoutTexte}>J'ai éjac !</Text>
+          </Pressable>
+        </View>
+      )}
       <View style={styles.barre}>
         {ONGLETS.map((o) => {
           const estActif = o.cle === actif;

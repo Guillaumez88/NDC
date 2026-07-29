@@ -2,12 +2,14 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   getDocs,
   limit,
   orderBy,
   query,
   serverTimestamp,
   Timestamp,
+  updateDoc,
   addDoc,
 } from 'firebase/firestore';
 import { auth, db } from './firebase';
@@ -53,6 +55,34 @@ export async function ajouterSeance(seance: NouvelleSeance): Promise<void> {
     dateHeure: Timestamp.fromDate(seance.dateHeure),
     note: seance.note,
     creeLe: serverTimestamp(),
+  });
+}
+
+// Lecture d'une seule séance pour préremplir le formulaire de modification :
+// un getDoc plutôt que de chercher dans la liste des 500 dernières, ce qui
+// évite de dépendre de cette fenêtre et coûte une lecture au lieu de 500.
+export async function getSeance(id: string): Promise<Session | null> {
+  const uid = auth.currentUser?.uid;
+  if (!uid) return null;
+
+  const snap = await getDoc(doc(db, 'users', uid, 'sessions', id));
+  if (!snap.exists()) return null;
+  const data = snap.data();
+  return { id: snap.id, ...(data as Omit<Session, 'id' | 'sodo'>), sodo: Boolean(data.sodo) };
+}
+
+// creeLe n'est volontairement pas réécrit : updateDoc ne touche que les champs
+// fournis, la date de création d'origine est conservée.
+export async function modifierSeance(id: string, seance: NouvelleSeance): Promise<void> {
+  const uid = auth.currentUser?.uid;
+  if (!uid) throw new Error('Non connecté.');
+
+  await updateDoc(doc(db, 'users', uid, 'sessions', id), {
+    type: seance.type,
+    sodo: seance.sodo,
+    dureeMinutes: seance.dureeMinutes,
+    dateHeure: Timestamp.fromDate(seance.dateHeure),
+    note: seance.note,
   });
 }
 

@@ -13,10 +13,11 @@ const LABEL_TYPE: Record<Session['type'], string> = {
 type Props = {
   seance: Session;
   couleurs: Palette;
+  onModifier?: (id: string) => void;
   onSupprimer?: (id: string) => void;
 };
 
-export function CarteJour({ seance, couleurs: c, onSupprimer }: Props) {
+export function CarteJour({ seance, couleurs: c, onModifier, onSupprimer }: Props) {
   const styles = creerStyles(c);
   const heure = seance.dateHeure.toDate().toLocaleTimeString('fr-FR', {
     hour: '2-digit',
@@ -33,11 +34,21 @@ export function CarteJour({ seance, couleurs: c, onSupprimer }: Props) {
         <Text style={styles.meta}>{meta}</Text>
         {seance.note ? <Text style={styles.note}>« {seance.note} »</Text> : null}
       </View>
+      {onModifier && (
+        <Pressable
+          onPress={() => onModifier(seance.id)}
+          hitSlop={10}
+          style={styles.boutonAction}
+          accessibilityLabel="Modifier cette séance"
+        >
+          <Feather name="edit-2" size={16} color={c.ink3} />
+        </Pressable>
+      )}
       {onSupprimer && (
         <Pressable
           onPress={() => onSupprimer(seance.id)}
           hitSlop={10}
-          style={styles.boutonSupprimer}
+          style={styles.boutonAction}
           accessibilityLabel="Supprimer cette séance"
         >
           <Feather name="trash-2" size={17} color={c.ink3} />
@@ -57,12 +68,12 @@ function creerStyles(c: Palette) {
       padding: 15,
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 14,
+      gap: 10,
     },
     pointe: { width: 12, height: 12, borderRadius: 6 },
     titre: { fontSize: 14.5, fontWeight: '600', color: c.ink },
     meta: { fontSize: 12.5, color: c.ink3, marginTop: 2 },
     note: { fontSize: 12.5, color: c.ink2, marginTop: 6, fontStyle: 'italic' },
-    boutonSupprimer: { padding: 6 },
+    boutonAction: { padding: 6 },
   });
 }

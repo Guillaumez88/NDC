@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import {
   ajouterSeance,
   listerSeancesRecentes,
+  modifierSeance,
   supprimerSeance,
   type NouvelleSeance,
 } from '../lib/sessionsApi';
@@ -46,6 +47,14 @@ export function useSessions() {
     [recharger]
   );
 
+  const modifier = useCallback(
+    async (id: string, seance: NouvelleSeance) => {
+      await modifierSeance(id, seance);
+      await recharger();
+    },
+    [recharger]
+  );
+
   const supprimer = useCallback(
     async (id: string) => {
       await supprimerSeance(id);
@@ -54,5 +63,5 @@ export function useSessions() {
     [recharger]
   );
 
-  return { seances, chargement, recharger, ajouter, supprimer };
+  return { seances, chargement, recharger, ajouter, modifier, supprimer };
 }

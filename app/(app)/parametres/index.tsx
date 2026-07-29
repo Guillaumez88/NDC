@@ -31,15 +31,20 @@ export default function Parametres() {
 
   const verrouillageActif = Boolean(profile?.verrouillageActif);
 
-  async function surChangementObjectif(valeur: number) {
-    setObjectif(valeur);
-    await updateObjectifMensuel(valeur);
+  // onValueChange (pendant le glissement) ne fait que rafraîchir l'affichage ;
+  // l'écriture Firestore attend onSlidingComplete pour ne pas déclencher une
+  // écriture par pixel parcouru.
+  async function persisterObjectif(valeur: number) {
+    const arrondi = Math.round(valeur);
+    setObjectif(arrondi);
+    await updateObjectifMensuel(arrondi);
     await rafraichirProfil();
   }
 
-  async function surChangementObjectifSemaine(valeur: number) {
-    setObjectifSemaine(valeur);
-    await updateObjectifHebdomadaire(valeur);
+  async function persisterObjectifSemaine(valeur: number) {
+    const arrondi = Math.round(valeur);
+    setObjectifSemaine(arrondi);
+    await updateObjectifHebdomadaire(arrondi);
     await rafraichirProfil();
   }
 
@@ -106,51 +111,51 @@ export default function Parametres() {
 
         <View style={styles.carte}>
           <View style={styles.ligneEntreBords}>
-            <Text style={styles.libelle}>Objectif mensuel</Text>
+            <Text style={styles.libelle}>Objectif en 30 jours</Text>
             <Text style={styles.objectifValeur}>{objectif}</Text>
           </View>
           <Text style={styles.sousLibelle}>
-            Repère Harvard : 21 par mois, glissant sur les 30 derniers jours. À vous de l'ajuster.
+            Glissant sur les 30 derniers jours. Repère Harvard : 21.
           </Text>
           <Slider
-            minimumValue={5}
-            maximumValue={40}
+            minimumValue={0}
+            maximumValue={21}
             step={1}
             value={objectif}
-            onSlidingComplete={surChangementObjectif}
+            onValueChange={setObjectif}
+            onSlidingComplete={persisterObjectif}
             minimumTrackTintColor={c.accent}
             maximumTrackTintColor={c.line}
             thumbTintColor={c.accent}
             style={{ marginTop: 16 }}
           />
           <View style={styles.ligneEntreBords}>
-            <Text style={styles.repereTexte}>5</Text>
+            <Text style={styles.repereTexte}>0</Text>
             <Text style={styles.repereTexte}>21</Text>
-            <Text style={styles.repereTexte}>40</Text>
           </View>
         </View>
 
         <View style={[styles.carte, { marginTop: 14 }]}>
           <View style={styles.ligneEntreBords}>
-            <Text style={styles.libelle}>Objectif hebdomadaire</Text>
+            <Text style={styles.libelle}>Objectif de la semaine</Text>
             <Text style={styles.objectifValeur}>{objectifSemaine}</Text>
           </View>
           <Text style={styles.sousLibelle}>Semaine en cours (lundi à dimanche).</Text>
           <Slider
-            minimumValue={1}
-            maximumValue={14}
+            minimumValue={0}
+            maximumValue={7}
             step={1}
             value={objectifSemaine}
-            onSlidingComplete={surChangementObjectifSemaine}
+            onValueChange={setObjectifSemaine}
+            onSlidingComplete={persisterObjectifSemaine}
             minimumTrackTintColor={c.accent}
             maximumTrackTintColor={c.line}
             thumbTintColor={c.accent}
             style={{ marginTop: 16 }}
           />
           <View style={styles.ligneEntreBords}>
-            <Text style={styles.repereTexte}>1</Text>
-            <Text style={styles.repereTexte}>3</Text>
-            <Text style={styles.repereTexte}>14</Text>
+            <Text style={styles.repereTexte}>0</Text>
+            <Text style={styles.repereTexte}>7</Text>
           </View>
         </View>
 
@@ -235,7 +240,7 @@ export default function Parametres() {
 function creerStyles(c: ReturnType<typeof useTheme>['couleurs']) {
   return StyleSheet.create({
     ecran: { flex: 1, backgroundColor: c.bg },
-    contenu: { padding: 22, paddingBottom: 190 },
+    contenu: { padding: 22, paddingBottom: 120 },
     titre: { fontSize: 26, fontWeight: '700', color: c.ink, marginBottom: 20 },
     carte: {
       backgroundColor: c.card,

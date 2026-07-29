@@ -128,7 +128,7 @@ export default function Stats() {
 function creerStyles(c: ReturnType<typeof useTheme>['couleurs']) {
   return StyleSheet.create({
     ecran: { flex: 1, backgroundColor: c.bg },
-    contenu: { padding: 22, paddingBottom: 190 },
+    contenu: { padding: 22, paddingBottom: 120 },
     titre: { fontSize: 26, fontWeight: '700', color: c.ink, marginBottom: 20 },
     sectionTitre: {
       fontSize: 12.5,

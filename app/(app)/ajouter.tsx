@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useEffect, useMemo, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   ActivityIndicator,
   Platform,
@@ -13,6 +13,7 @@ import {
 import { useTheme } from '../../contexts/ThemeContext';
 import { useSessions } from '../../hooks/useSessions';
 import { ChampDateHeure } from '../../components/ChampDateHeure';
+import { getSeance } from '../../lib/sessionsApi';
 import { COULEURS_TYPE } from '../../lib/theme';
 import type { SessionType } from '../../lib/types';
 
@@ -26,8 +27,10 @@ const DUREES = [5, 10, 15, 30, 45, 60];
 
 export default function Ajouter() {
   const router = useRouter();
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const modeModification = Boolean(id);
   const { couleurs: c } = useTheme();
-  const { ajouter } = useSessions();
+  const { ajouter, modifier } = useSessions();
   const styles = useMemo(() => creerStyles(c), [c]);
 
   const [type, setType] = useState<SessionType>('solo');
@@ -37,18 +40,51 @@ export default function Ajouter() {
   const [note, setNote] = useState('');
   const [enCours, setEnCours] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
+  const [chargementSeance, setChargementSeance] = useState(modeModification);
+
+  useEffect(() => {
+    if (!id) return;
+    let annule = false;
+    getSeance(id)
+      .then((seance) => {
+        if (annule) return;
+        if (!seance) {
+          setErreur("Cette séance n'existe plus.");
+          return;
+        }
+        setType(seance.type);
+        setSodo(seance.sodo);
+        setDuree(seance.dureeMinutes ?? 15);
+        setDateHeure(seance.dateHeure.toDate());
+        setNote(seance.note ?? '');
+      })
+      .catch(() => {
+        if (!annule) setErreur('Impossible de charger cette séance.');
+      })
+      .finally(() => {
+        if (!annule) setChargementSeance(false);
+      });
+    return () => {
+      annule = true;
+    };
+  }, [id]);
 
   async function enregistrer() {
     setErreur(null);
     setEnCours(true);
     try {
-      await ajouter({
+      const donnees = {
         type,
         sodo,
         dureeMinutes: duree,
         dateHeure,
         note: note.trim() ? note.trim() : null,
-      });
+      };
+      if (id) {
+        await modifier(id, donnees);
+      } else {
+        await ajouter(donnees);
+      }
       router.back();
     } catch {
       setErreur("L'enregistrement a échoué. Réessayez.");
@@ -63,93 +99,103 @@ export default function Ajouter() {
         <Pressable onPress={() => router.back()}>
           <Text style={styles.annuler}>Annuler</Text>
         </Pressable>
-        <Text style={styles.titreEntete}>Nouvelle séance</Text>
+        <Text style={styles.titreEntete}>
+          {modeModification ? 'Modifier la séance' : 'Nouvelle séance'}
+        </Text>
         <View style={{ width: 56 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.contenu}>
-        <Text style={styles.sectionTitre}>Type</Text>
-        <View style={styles.typesRangee}>
-          {TYPES.map((t) => {
-            const actif = t.cle === type;
-            return (
-              <Pressable
-                key={t.cle}
-                onPress={() => setType(t.cle)}
-                style={[
-                  styles.typeBtn,
-                  {
-                    backgroundColor: actif ? c.accentSoft : c.card,
-                    borderColor: actif ? COULEURS_TYPE[t.cle] : c.line,
-                  },
-                ]}
-              >
-                <View style={[styles.typePastille, { backgroundColor: COULEURS_TYPE[t.cle] }]} />
-                <Text style={styles.typeTexte}>{t.label}</Text>
-              </Pressable>
-            );
-          })}
+      {chargementSeance ? (
+        <View style={styles.centre}>
+          <ActivityIndicator color={c.accent} />
         </View>
+      ) : (
+        <>
+          <ScrollView contentContainerStyle={styles.contenu}>
+            <Text style={styles.sectionTitre}>Type</Text>
+            <View style={styles.typesRangee}>
+              {TYPES.map((t) => {
+                const actif = t.cle === type;
+                return (
+                  <Pressable
+                    key={t.cle}
+                    onPress={() => setType(t.cle)}
+                    style={[
+                      styles.typeBtn,
+                      {
+                        backgroundColor: actif ? c.accentSoft : c.card,
+                        borderColor: actif ? COULEURS_TYPE[t.cle] : c.line,
+                      },
+                    ]}
+                  >
+                    <View style={[styles.typePastille, { backgroundColor: COULEURS_TYPE[t.cle] }]} />
+                    <Text style={styles.typeTexte}>{t.label}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
 
-        <View style={styles.carteToggle}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.toggleTitre}>Sodo</Text>
-            <Text style={styles.toggleSousTitre}>Signalé dans le journal</Text>
+            <View style={styles.carteToggle}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.toggleTitre}>Sodo</Text>
+                <Text style={styles.toggleSousTitre}>Signalé dans le journal</Text>
+              </View>
+              <Pressable
+                onPress={() => setSodo((v) => !v)}
+                style={[styles.toggleFond, { backgroundColor: sodo ? c.accent : c.line }]}
+              >
+                <View style={[styles.toggleBoule, { left: sodo ? 25 : 3 }]} />
+              </Pressable>
+            </View>
+
+            <Text style={styles.sectionTitre}>Durée approximative</Text>
+            <View style={styles.dureesRangee}>
+              {DUREES.map((d) => {
+                const actif = d === duree;
+                return (
+                  <Pressable
+                    key={d}
+                    onPress={() => setDuree(d)}
+                    style={[
+                      styles.dureeBtn,
+                      { backgroundColor: actif ? c.accent : c.card, borderColor: actif ? c.accent : c.line },
+                    ]}
+                  >
+                    <Text style={[styles.dureeTexte, { color: actif ? '#FFF8F2' : c.ink }]}>
+                      {d === 60 ? '60 min +' : `${d} min`}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            <Text style={styles.sectionTitre}>Quand</Text>
+            <ChampDateHeure dateHeure={dateHeure} onChange={setDateHeure} couleurs={c} />
+
+            <Text style={styles.sectionTitre}>Note (optionnel)</Text>
+            <TextInput
+              value={note}
+              onChangeText={setNote}
+              placeholder="Un mot sur votre ressenti, votre énergie…"
+              placeholderTextColor={c.ink3}
+              multiline
+              numberOfLines={3}
+              style={styles.note}
+            />
+          </ScrollView>
+
+          <View style={styles.pied}>
+            {erreur && <Text style={styles.erreur}>{erreur}</Text>}
+            <Pressable style={styles.boutonEnregistrer} onPress={enregistrer} disabled={enCours}>
+              {enCours ? (
+                <ActivityIndicator color="#FFF8F2" />
+              ) : (
+                <Text style={styles.boutonEnregistrerTexte}>Enregistrer</Text>
+              )}
+            </Pressable>
           </View>
-          <Pressable
-            onPress={() => setSodo((v) => !v)}
-            style={[styles.toggleFond, { backgroundColor: sodo ? c.accent : c.line }]}
-          >
-            <View style={[styles.toggleBoule, { left: sodo ? 25 : 3 }]} />
-          </Pressable>
-        </View>
-
-        <Text style={styles.sectionTitre}>Durée approximative</Text>
-        <View style={styles.dureesRangee}>
-          {DUREES.map((d) => {
-            const actif = d === duree;
-            return (
-              <Pressable
-                key={d}
-                onPress={() => setDuree(d)}
-                style={[
-                  styles.dureeBtn,
-                  { backgroundColor: actif ? c.accent : c.card, borderColor: actif ? c.accent : c.line },
-                ]}
-              >
-                <Text style={[styles.dureeTexte, { color: actif ? '#FFF8F2' : c.ink }]}>
-                  {d === 60 ? '60 min +' : `${d} min`}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-
-        <Text style={styles.sectionTitre}>Quand</Text>
-        <ChampDateHeure dateHeure={dateHeure} onChange={setDateHeure} couleurs={c} />
-
-        <Text style={styles.sectionTitre}>Note (optionnel)</Text>
-        <TextInput
-          value={note}
-          onChangeText={setNote}
-          placeholder="Un mot sur votre ressenti, votre énergie…"
-          placeholderTextColor={c.ink3}
-          multiline
-          numberOfLines={3}
-          style={styles.note}
-        />
-      </ScrollView>
-
-      <View style={styles.pied}>
-        {erreur && <Text style={styles.erreur}>{erreur}</Text>}
-        <Pressable style={styles.boutonEnregistrer} onPress={enregistrer} disabled={enCours}>
-          {enCours ? (
-            <ActivityIndicator color="#FFF8F2" />
-          ) : (
-            <Text style={styles.boutonEnregistrerTexte}>Enregistrer</Text>
-          )}
-        </Pressable>
-      </View>
+        </>
+      )}
     </View>
   );
 }
@@ -157,6 +203,7 @@ export default function Ajouter() {
 function creerStyles(c: ReturnType<typeof useTheme>['couleurs']) {
   return StyleSheet.create({
     ecran: { flex: 1, backgroundColor: c.bg },
+    centre: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     entete: {
       paddingTop: Platform.select({ web: 20, default: 60 }),
       paddingHorizontal: 22,

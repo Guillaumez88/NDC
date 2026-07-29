@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useRouter } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useSessions } from '../../hooks/useSessions';
@@ -17,6 +18,7 @@ const NOMS_MOIS = [
 const LABEL_TYPE: Record<SessionType, string> = { solo: 'Solo', duo: 'À deux', groupe: 'À plusieurs' };
 
 export default function TableauDeBord() {
+  const router = useRouter();
   const { couleurs: c } = useTheme();
   const { seances, supprimer } = useSessions();
   const styles = useMemo(() => creerStyles(c), [c]);
@@ -121,7 +123,13 @@ export default function TableauDeBord() {
           {seancesJour.length > 0 ? (
             <View style={{ gap: 10 }}>
               {seancesJour.map((s) => (
-                <CarteJour key={s.id} seance={s} couleurs={c} onSupprimer={confirmerSuppression} />
+                <CarteJour
+                  key={s.id}
+                  seance={s}
+                  couleurs={c}
+                  onModifier={(id) => router.push(`/ajouter?id=${id}`)}
+                  onSupprimer={confirmerSuppression}
+                />
               ))}
             </View>
           ) : (
@@ -140,7 +148,7 @@ export default function TableauDeBord() {
 function creerStyles(c: ReturnType<typeof useTheme>['couleurs']) {
   return StyleSheet.create({
     ecran: { flex: 1, backgroundColor: c.bg },
-    contenu: { padding: 22, paddingBottom: 190 },
+    contenu: { padding: 22, paddingBottom: 120 },
     titre: { fontSize: 26, fontWeight: '700', color: c.ink },
     moisRangee: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 20, marginTop: 4 },
     chevron: { fontSize: 20, color: c.ink2, paddingHorizontal: 4 },
