@@ -25,6 +25,13 @@ jobs:
           node-version: 22
           cache: npm
 
+      # Aligné sur la version npm utilisée en local pour générer package-lock.json :
+      # avec un pair optionnel comme @firebase/auth -> @react-native-async-storage
+      # (satisfait ici par une version majeure différente), des versions npm
+      # différentes peuvent interpréter le lockfile différemment et faire
+      # échouer `npm ci` à tort ("Missing X from lock file").
+      - run: npm install -g npm@12.0.1
+
       - run: npm ci
 
       - run: npm run typecheck

@@ -5,7 +5,7 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 // consulte pour "firebase/auth" ne le déclare pas (limitation connue du SDK Firebase JS,
 // même contournement que sur Suivi-de-poids).
 import { initializeAuth, getReactNativePersistence, browserLocalPersistence, getAuth, type Auth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore, type Firestore } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Accès statiques (process.env.EXPO_PUBLIC_XXX littéral) requis : le plugin
@@ -47,4 +47,21 @@ try {
 }
 
 export { auth };
-export const db = getFirestore(app);
+
+// Le transport temps réel par défaut de Firestore (WebChannel) échoue sur
+// certains réseaux/navigateurs (proxys d'entreprise, certains contextes
+// automatisés) avec une erreur "client is offline" alors que le réseau
+// fonctionne (confirmé : un fetch direct vers firestore.googleapis.com
+// passe). Le repli documenté par Firebase est le long-polling, pertinent
+// uniquement sur web (le SDK natif utilise un transport différent).
+let db: Firestore;
+try {
+  db =
+    Platform.OS === 'web'
+      ? initializeFirestore(app, { experimentalAutoDetectLongPolling: true })
+      : getFirestore(app);
+} catch {
+  // initializeFirestore ne peut être appelé qu'une fois (Fast Refresh en dev).
+  db = getFirestore(app);
+}
+export { db };
