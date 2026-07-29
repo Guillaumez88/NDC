@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import {
   ajouterSeance,
@@ -27,9 +28,15 @@ export function useSessions() {
     }
   }, [user]);
 
-  useEffect(() => {
-    recharger();
-  }, [recharger]);
+  // useFocusEffect (pas un simple useEffect) : chaque écran utilisant ce hook
+  // maintient son propre état local, sans magasin partagé. Sans ça, revenir
+  // sur un écran déjà monté (ex. après avoir ajouté une séance depuis la
+  // modale) afficherait des données périmées jusqu'au prochain montage complet.
+  useFocusEffect(
+    useCallback(() => {
+      recharger();
+    }, [recharger])
+  );
 
   const ajouter = useCallback(
     async (nouvelle: NouvelleSeance) => {

@@ -57,7 +57,7 @@ export default function SuppressionCompte() {
         visible={modalOuverte}
         couleurs={c}
         titre="Supprimer le compte et les données"
-        texteEtape1="Cette action est irréversible : tout est effacé de votre téléphone, sans copie ni sauvegarde."
+        texteEtape1="Cette action est irréversible : toutes vos données sont effacées, sans copie ni sauvegarde possible."
         texteEtape2="Dernière étape. Toutes vos séances, vos notes et votre compte seront effacés. Rien ne peut être récupéré, par personne."
         labelBoutonEtape1="Supprimer mon compte"
         labelBoutonEtape2="Oui, tout supprimer définitivement"
