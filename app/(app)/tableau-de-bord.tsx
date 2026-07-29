@@ -6,6 +6,7 @@ import { CalendrierMensuel } from '../../components/CalendrierMensuel';
 import { CarteJour } from '../../components/CarteJour';
 import { BarreInferieure } from '../../components/BarreInferieure';
 import { COULEURS_TYPE } from '../../lib/theme';
+import { confirmerAction } from '../../lib/confirm';
 import type { Session, SessionType } from '../../lib/types';
 
 const NOMS_MOIS = [
@@ -17,7 +18,7 @@ const LABEL_TYPE: Record<SessionType, string> = { solo: 'Solo', duo: 'À deux', 
 
 export default function TableauDeBord() {
   const { couleurs: c } = useTheme();
-  const { seances } = useSessions();
+  const { seances, supprimer } = useSessions();
   const styles = useMemo(() => creerStyles(c), [c]);
 
   const maintenant = new Date();
@@ -63,6 +64,10 @@ export default function TableauDeBord() {
     const suivant = new Date(annee, mois + delta, 1);
     setMoisAffiche(suivant);
     setJourSelectionne(1);
+  }
+
+  function confirmerSuppression(id: string) {
+    confirmerAction('Supprimer cette séance ?', 'Cette action est irréversible.', () => supprimer(id));
   }
 
   return (
@@ -116,7 +121,7 @@ export default function TableauDeBord() {
           {seancesJour.length > 0 ? (
             <View style={{ gap: 10 }}>
               {seancesJour.map((s) => (
-                <CarteJour key={s.id} seance={s} couleurs={c} />
+                <CarteJour key={s.id} seance={s} couleurs={c} onSupprimer={confirmerSuppression} />
               ))}
             </View>
           ) : (

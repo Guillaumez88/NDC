@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { COULEURS_TYPE } from '../lib/theme';
 import type { Palette } from '../lib/theme';
 import type { Session } from '../lib/types';
@@ -12,9 +13,10 @@ const LABEL_TYPE: Record<Session['type'], string> = {
 type Props = {
   seance: Session;
   couleurs: Palette;
+  onSupprimer?: (id: string) => void;
 };
 
-export function CarteJour({ seance, couleurs: c }: Props) {
+export function CarteJour({ seance, couleurs: c, onSupprimer }: Props) {
   const styles = creerStyles(c);
   const heure = seance.dateHeure.toDate().toLocaleTimeString('fr-FR', {
     hour: '2-digit',
@@ -31,6 +33,16 @@ export function CarteJour({ seance, couleurs: c }: Props) {
         <Text style={styles.meta}>{meta}</Text>
         {seance.note ? <Text style={styles.note}>« {seance.note} »</Text> : null}
       </View>
+      {onSupprimer && (
+        <Pressable
+          onPress={() => onSupprimer(seance.id)}
+          hitSlop={10}
+          style={styles.boutonSupprimer}
+          accessibilityLabel="Supprimer cette séance"
+        >
+          <Feather name="trash-2" size={17} color={c.ink3} />
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -51,5 +63,6 @@ function creerStyles(c: Palette) {
     titre: { fontSize: 14.5, fontWeight: '600', color: c.ink },
     meta: { fontSize: 12.5, color: c.ink3, marginTop: 2 },
     note: { fontSize: 12.5, color: c.ink2, marginTop: 6, fontStyle: 'italic' },
+    boutonSupprimer: { padding: 6 },
   });
 }
