@@ -52,8 +52,10 @@ export default function Accueil() {
         <View style={styles.carte}>
           <JaugeCirculaire pourcentage={progression.ringPct} couleurs={c}>
             <View style={styles.jaugeCentre}>
-              <Text style={styles.jaugeNombre}>{progression.rollingCount}</Text>
-              <Text style={styles.jaugeLegende}>sur {progression.goal} (30 derniers jours)</Text>
+              <View style={styles.jaugeLigne}>
+                <Text style={styles.jaugeNombre}>{progression.rollingCount}</Text>
+                <Text style={styles.jaugeObjectif}> / {progression.goal}</Text>
+              </View>
               <Text style={styles.jaugeSousLegende}>{progression.ringPct}% de l'objectif</Text>
             </View>
           </JaugeCirculaire>
@@ -77,13 +79,6 @@ export default function Accueil() {
             </Text>
           </View>
           <SemaineCases jours={progression.semaineJours} couleurs={c} />
-        </View>
-
-        <View style={styles.disclaimer}>
-          <Text style={styles.disclaimerTexte}>
-            Le repère de 21 par mois vient d'une étude de Harvard (Rider et al., 2016). C'est
-            une indication, pas une note.
-          </Text>
         </View>
       </ScrollView>
 
@@ -124,8 +119,9 @@ function creerStyles(c: ReturnType<typeof useTheme>['couleurs']) {
       alignItems: 'center',
     },
     jaugeCentre: { alignItems: 'center' },
+    jaugeLigne: { flexDirection: 'row', alignItems: 'baseline' },
     jaugeNombre: { fontSize: 56, fontWeight: '700', color: c.ink, letterSpacing: -1 },
-    jaugeLegende: { fontSize: 15, fontWeight: '600', color: c.ink2, marginTop: 4 },
+    jaugeObjectif: { fontSize: 22, fontWeight: '600', color: c.ink2 },
     jaugeSousLegende: { fontSize: 12.5, color: c.ink3, marginTop: 8 },
     encourage: { fontSize: 13.5, color: c.ink2, textAlign: 'center', marginTop: 14, maxWidth: 270 },
     carteDerniere: {
@@ -149,14 +145,5 @@ function creerStyles(c: ReturnType<typeof useTheme>['couleurs']) {
     semaineEntete: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14 },
     semaineTitre: { fontSize: 15, fontWeight: '600', color: c.ink },
     semaineChiffre: { fontSize: 15, fontWeight: '700', color: c.accent },
-    disclaimer: {
-      marginTop: 14,
-      padding: 18,
-      borderRadius: 26,
-      borderWidth: 1,
-      borderStyle: 'dashed',
-      borderColor: c.line,
-    },
-    disclaimerTexte: { fontSize: 12.5, color: c.ink3, lineHeight: 18 },
   });
 }

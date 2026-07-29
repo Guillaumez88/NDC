@@ -31,7 +31,7 @@ export default function Ajouter() {
   const styles = useMemo(() => creerStyles(c), [c]);
 
   const [type, setType] = useState<SessionType>('solo');
-  const [ejaculatoire, setEjaculatoire] = useState(true);
+  const [sodo, setSodo] = useState(false);
   const [duree, setDuree] = useState<number>(15);
   const [dateHeure, setDateHeure] = useState(new Date());
   const [note, setNote] = useState('');
@@ -44,7 +44,7 @@ export default function Ajouter() {
     try {
       await ajouter({
         type,
-        ejaculatoire,
+        sodo,
         dureeMinutes: duree,
         dateHeure,
         note: note.trim() ? note.trim() : null,
@@ -93,14 +93,14 @@ export default function Ajouter() {
 
         <View style={styles.carteToggle}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.toggleTitre}>Éjaculatoire</Text>
-            <Text style={styles.toggleSousTitre}>Compte pour les objectifs</Text>
+            <Text style={styles.toggleTitre}>Sodo</Text>
+            <Text style={styles.toggleSousTitre}>Signalé dans le journal</Text>
           </View>
           <Pressable
-            onPress={() => setEjaculatoire((v) => !v)}
-            style={[styles.toggleFond, { backgroundColor: ejaculatoire ? c.accent : c.line }]}
+            onPress={() => setSodo((v) => !v)}
+            style={[styles.toggleFond, { backgroundColor: sodo ? c.accent : c.line }]}
           >
-            <View style={[styles.toggleBoule, { left: ejaculatoire ? 25 : 3 }]} />
+            <View style={[styles.toggleBoule, { left: sodo ? 25 : 3 }]} />
           </Pressable>
         </View>
 

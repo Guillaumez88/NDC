@@ -18,7 +18,7 @@ export type SessionType = 'solo' | 'duo' | 'groupe';
 export type Session = {
   id: string;
   type: SessionType;
-  ejaculatoire: boolean;
+  sodo: boolean;
   dureeMinutes: number | null;
   dateHeure: Timestamp;
   note: string | null;

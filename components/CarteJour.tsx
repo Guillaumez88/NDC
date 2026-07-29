@@ -22,7 +22,7 @@ export function CarteJour({ seance, couleurs: c, onSupprimer }: Props) {
     hour: '2-digit',
     minute: '2-digit',
   });
-  const titre = LABEL_TYPE[seance.type] + (seance.ejaculatoire ? '' : ' · sans éjaculation');
+  const titre = LABEL_TYPE[seance.type] + (seance.sodo ? ' · sodo' : '');
   const meta = seance.dureeMinutes ? `${heure} · environ ${seance.dureeMinutes} min` : heure;
 
   return (

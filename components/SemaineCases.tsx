@@ -25,9 +25,7 @@ export function SemaineCases({ jours, couleurs: c }: Props) {
               !j.aSeance && j.estAujourdhui && { borderColor: c.accent, borderWidth: 1.5 },
             ]}
           />
-          <Text style={[styles.label, j.estAujourdhui && { color: c.accent, fontWeight: '700' }]}>
-            {j.label}
-          </Text>
+          <Text style={[styles.label, j.estAujourdhui && styles.labelAujourdhui]}>{j.label}</Text>
         </View>
       ))}
     </View>
@@ -44,6 +42,7 @@ function creerStyles(c: Palette) {
       borderRadius: 10,
       backgroundColor: c.card2,
     },
-    label: { fontSize: 11.5, color: c.ink3, fontWeight: '600' },
+    label: { fontSize: 11.5, color: c.ink3, fontWeight: '500' },
+    labelAujourdhui: { fontSize: 13, color: c.accent, fontWeight: '800' },
   });
 }

@@ -39,9 +39,9 @@ export function useProgression(
     const dates = seances.map((s) => s.dateHeure.toDate());
 
     // --- Objectif glissant 30 jours ---
+    // Toute séance compte : une séance est éjaculatoire par définition.
     const debut30j = new Date(maintenant.getTime() - 30 * 86_400_000);
-    const sur30Jours = seances.filter((s, i) => dates[i] >= debut30j && dates[i] <= maintenant);
-    const rollingCount = sur30Jours.filter((s) => s.ejaculatoire).length;
+    const rollingCount = dates.filter((d) => d >= debut30j && d <= maintenant).length;
     const objectif30 = Math.max(1, objectifMensuel);
     const ringPct = Math.min(100, Math.round((rollingCount / objectif30) * 100));
     const encourage =
@@ -83,10 +83,9 @@ export function useProgression(
         estAujourdhui: memeJour(jourDate, maintenant),
       };
     });
-    const semaineCount = seances.filter((s, i) => {
-      const d = dates[i];
-      return s.ejaculatoire && d >= lundi && d.getTime() <= maintenant.getTime();
-    }).length;
+    const semaineCount = dates.filter(
+      (d) => d >= lundi && d.getTime() <= maintenant.getTime()
+    ).length;
 
     const monthLabel = `${NOMS_MOIS[maintenant.getMonth()].charAt(0).toUpperCase()}${NOMS_MOIS[maintenant.getMonth()].slice(1)} ${maintenant.getFullYear()}`;
 
