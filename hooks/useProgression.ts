@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { Session } from '../lib/types';
-import { indexPalier, palierPourJoursEcoules } from '../lib/moonPhases';
+import { indexPalier, palierPourJoursEcoules } from '../lib/niveaux';
 
 const NOMS_MOIS = [
   'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
@@ -98,6 +98,7 @@ export function useProgression(
       elapsed,
       phaseLabel: palier.libelle,
       palierIndex,
+      niveauLogo: Math.min(palierIndex, 5),
       semaineJours,
       semaineCount,
       objectifHebdomadaire: Math.max(1, objectifHebdomadaire),

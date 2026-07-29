@@ -5,7 +5,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useSessions } from '../../hooks/useSessions';
 import { useProgression } from '../../hooks/useProgression';
 import { JaugeCirculaire } from '../../components/JaugeCirculaire';
-import { IllustrationSymbolique } from '../../components/IllustrationSymbolique';
+import { LogoNiveau } from '../../components/LogoNiveau';
 import { SemaineCases } from '../../components/SemaineCases';
 import { BarreInferieure } from '../../components/BarreInferieure';
 
@@ -61,7 +61,7 @@ export default function Accueil() {
         </View>
 
         <View style={[styles.carte, styles.carteDerniere]}>
-          <IllustrationSymbolique palierIndex={progression.palierIndex} couleurs={c} />
+          <LogoNiveau niveau={progression.niveauLogo} couleurs={c} />
           <View style={styles.derniereTexte}>
             <Text style={styles.derniereEtiquette}>Depuis ta dernière éjac</Text>
             <Text style={styles.derniereValeur}>{progression.elapsed}</Text>
