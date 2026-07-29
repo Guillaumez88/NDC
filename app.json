@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "NDC",
+    "slug": "ndc",
+    "scheme": "ndc",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "experiments": {
+      "baseUrl": "/NDC"
+    },
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F7EFE6"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.ndc.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#F7EFE6"
+      },
+      "package": "com.ndc.app"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/images/favicon.png",
+      "name": "NDC",
+      "shortName": "NDC",
+      "themeColor": "#B85C3C",
+      "backgroundColor": "#F7EFE6",
+      "display": "standalone",
+      "lang": "fr"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-splash-screen",
+      "expo-status-bar",
+      "@react-native-community/datetimepicker"
+    ]
+  }
+}

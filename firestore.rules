@@ -1,0 +1,40 @@
+rules_version = '2';
+
+// Règles de sécurité NDC — à publier depuis la console Firebase
+// (Firestore Database > Règles), pas de Cloud Function dans ce projet.
+//
+// - users/{uid} : profil (objectif mensuel, verrouillage, thème) + sous-collection
+//   sessions, strictement limités à leur propriétaire (request.auth.uid == uid),
+//   même schéma que le projet Suivi-de-poids.
+// - pseudos/{slug} : garantit l'unicité du pseudo SANS Cloud Function. Le slug est
+//   l'identifiant du document : Firestore n'autorise une opération "create" que si
+//   le document n'existe pas encore, et "allow update: if false" interdit toute
+//   réécriture ultérieure (y compris par le propriétaire) — donc impossible de
+//   "voler" un pseudo déjà pris, sans transaction ni logique serveur.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /pseudos/{slug} {
+      allow get: if true; // pré-check de disponibilité à l'inscription (existence seule)
+      allow list: if false;
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.slug == slug;
+      allow update: if false;
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+
+      match /{sousCollection}/{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+
+    // Par défaut, tout le reste est refusé.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
