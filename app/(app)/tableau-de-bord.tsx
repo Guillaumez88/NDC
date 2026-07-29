@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useSessions } from '../../hooks/useSessions';
 import { CalendrierMensuel } from '../../components/CalendrierMensuel';
@@ -17,7 +16,6 @@ const NOMS_MOIS = [
 const LABEL_TYPE: Record<SessionType, string> = { solo: 'Solo', duo: 'À deux', groupe: 'À plusieurs' };
 
 export default function TableauDeBord() {
-  const { profile } = useAuth();
   const { couleurs: c } = useTheme();
   const { seances } = useSessions();
   const styles = useMemo(() => creerStyles(c), [c]);
@@ -49,10 +47,6 @@ export default function TableauDeBord() {
     }
     return map;
   }, [duMois]);
-
-  const objectif = profile?.objectifMensuel ?? 21;
-  const monthCount = duMois.filter((s) => s.ejaculatoire).length;
-  const ringPct = Math.min(100, Math.round((monthCount / Math.max(1, objectif)) * 100));
 
   const repartition = (['solo', 'duo', 'groupe'] as SessionType[]).map((type) => ({
     type,
@@ -88,20 +82,9 @@ export default function TableauDeBord() {
         </View>
 
         <View style={styles.carteResume}>
-          <View style={styles.resumeRangee}>
-            <View>
-              <Text style={styles.resumeGrandChiffre}>{duMois.length}</Text>
-              <Text style={styles.resumeLegende}>séances ce mois</Text>
-            </View>
-            <View style={{ alignItems: 'flex-end' }}>
-              <Text style={styles.resumeObjectif}>
-                {monthCount}/{objectif}
-              </Text>
-              <Text style={styles.resumeLegendePetite}>vers l'objectif</Text>
-            </View>
-          </View>
-          <View style={styles.barreProgression}>
-            <View style={[styles.barreProgressionRemplie, { width: `${ringPct}%` }]} />
+          <View>
+            <Text style={styles.resumeGrandChiffre}>{duMois.length}</Text>
+            <Text style={styles.resumeLegende}>séances ce mois</Text>
           </View>
           <View style={styles.repartitionRangee}>
             {repartition.map((r) => (
@@ -164,19 +147,8 @@ function creerStyles(c: ReturnType<typeof useTheme>['couleurs']) {
       borderRadius: 30,
       padding: 20,
     },
-    resumeRangee: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' },
     resumeGrandChiffre: { fontSize: 36, fontWeight: '700', color: c.ink, lineHeight: 38 },
     resumeLegende: { fontSize: 12.5, color: c.ink2, marginTop: 2 },
-    resumeObjectif: { fontSize: 18, fontWeight: '700', color: c.accent },
-    resumeLegendePetite: { fontSize: 12, color: c.ink3, marginTop: 2 },
-    barreProgression: {
-      height: 10,
-      borderRadius: 5,
-      backgroundColor: c.accentSoft,
-      marginTop: 14,
-      overflow: 'hidden',
-    },
-    barreProgressionRemplie: { height: '100%', borderRadius: 5, backgroundColor: c.accent },
     repartitionRangee: { flexDirection: 'row', flexWrap: 'wrap', gap: 14, marginTop: 16 },
     repartitionItem: { flexDirection: 'row', alignItems: 'center', gap: 7 },
     repartitionPoint: { width: 10, height: 10, borderRadius: 5 },

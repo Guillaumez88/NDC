@@ -7,6 +7,7 @@ export type Profile = {
   pseudoAffichage: string;
   pseudoSlug: string;
   objectifMensuel: number;
+  objectifHebdomadaire: number;
   verrouillageActif: boolean;
   theme: Theme;
   creeLe: Timestamp | null;

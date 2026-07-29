@@ -1,13 +1,20 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
 import type { Palette } from '../lib/theme';
 
-type Onglet = 'accueil' | 'journal' | 'reglages';
+type Onglet = 'accueil' | 'journal' | 'stats' | 'reglages';
 
-const ONGLETS: { cle: Onglet; label: string; href: '/' | '/tableau-de-bord' | '/parametres' }[] = [
-  { cle: 'accueil', label: 'Accueil', href: '/' },
-  { cle: 'journal', label: 'Journal', href: '/tableau-de-bord' },
-  { cle: 'reglages', label: 'Réglages', href: '/parametres' },
+const ONGLETS: {
+  cle: Onglet;
+  label: string;
+  icone: keyof typeof Feather.glyphMap;
+  href: '/' | '/tableau-de-bord' | '/stats' | '/parametres';
+}[] = [
+  { cle: 'accueil', label: 'Accueil', icone: 'home', href: '/' },
+  { cle: 'journal', label: 'Journal', icone: 'book-open', href: '/tableau-de-bord' },
+  { cle: 'stats', label: 'Stats', icone: 'bar-chart-2', href: '/stats' },
+  { cle: 'reglages', label: 'Réglages', icone: 'settings', href: '/parametres' },
 ];
 
 type Props = {
@@ -23,7 +30,7 @@ export function BarreInferieure({ actif, couleurs: c }: Props) {
     <View style={styles.conteneur} pointerEvents="box-none">
       <View style={styles.boutonAjoutZone}>
         <Pressable style={styles.boutonAjout} onPress={() => router.push('/ajouter')}>
-          <Text style={styles.boutonAjoutPlus}>+</Text>
+          <Feather name="plus" size={20} color="#FFF8F2" />
           <Text style={styles.boutonAjoutTexte}>Ajouter une séance</Text>
         </Pressable>
       </View>
@@ -32,7 +39,7 @@ export function BarreInferieure({ actif, couleurs: c }: Props) {
           const estActif = o.cle === actif;
           return (
             <Pressable key={o.cle} style={styles.onglet} onPress={() => router.push(o.href)}>
-              <View style={[styles.point, { backgroundColor: estActif ? c.accent : 'transparent' }]} />
+              <Feather name={o.icone} size={20} color={estActif ? c.accent : c.ink3} />
               <Text style={[styles.ongletTexte, { color: estActif ? c.accent : c.ink3 }]}>{o.label}</Text>
             </Pressable>
           );
@@ -64,12 +71,6 @@ function creerStyles(c: Palette) {
       borderRadius: 30,
       backgroundColor: c.accent,
     },
-    boutonAjoutPlus: {
-      fontSize: 20,
-      lineHeight: 20,
-      color: '#FFF8F2',
-      fontWeight: '700',
-    },
     boutonAjoutTexte: {
       fontSize: 16,
       fontWeight: '700',
@@ -81,23 +82,18 @@ function creerStyles(c: Palette) {
       borderTopColor: c.line,
       paddingTop: 12,
       paddingBottom: 26,
-      paddingHorizontal: 22,
+      paddingHorizontal: 10,
       flexDirection: 'row',
       justifyContent: 'space-around',
     },
     onglet: {
       alignItems: 'center',
-      gap: 7,
-      paddingHorizontal: 14,
+      gap: 6,
+      paddingHorizontal: 10,
       paddingVertical: 2,
     },
-    point: {
-      width: 9,
-      height: 9,
-      borderRadius: 5,
-    },
     ongletTexte: {
-      fontSize: 12.5,
+      fontSize: 12,
       fontWeight: '600',
     },
   });

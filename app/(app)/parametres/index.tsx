@@ -5,7 +5,11 @@ import Slider from '@react-native-community/slider';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useLock } from '../../../contexts/LockContext';
-import { updateObjectifMensuel, updateVerrouillageActif } from '../../../lib/profileApi';
+import {
+  updateObjectifHebdomadaire,
+  updateObjectifMensuel,
+  updateVerrouillageActif,
+} from '../../../lib/profileApi';
 import { ClavierPin } from '../../../components/ClavierPin';
 import { BarreInferieure } from '../../../components/BarreInferieure';
 
@@ -19,6 +23,7 @@ export default function Parametres() {
   const styles = useMemo(() => creerStyles(c), [c]);
 
   const [objectif, setObjectif] = useState(profile?.objectifMensuel ?? 21);
+  const [objectifSemaine, setObjectifSemaine] = useState(profile?.objectifHebdomadaire ?? 3);
   const [etapePin, setEtapePin] = useState<EtapeDefinitionPin>('aucune');
   const [codeTemporaire, setCodeTemporaire] = useState('');
   const [codeSaisi, setCodeSaisi] = useState('');
@@ -29,6 +34,12 @@ export default function Parametres() {
   async function surChangementObjectif(valeur: number) {
     setObjectif(valeur);
     await updateObjectifMensuel(valeur);
+    await rafraichirProfil();
+  }
+
+  async function surChangementObjectifSemaine(valeur: number) {
+    setObjectifSemaine(valeur);
+    await updateObjectifHebdomadaire(valeur);
     await rafraichirProfil();
   }
 
@@ -98,7 +109,9 @@ export default function Parametres() {
             <Text style={styles.libelle}>Objectif mensuel</Text>
             <Text style={styles.objectifValeur}>{objectif}</Text>
           </View>
-          <Text style={styles.sousLibelle}>Repère Harvard : 21 par mois. À vous de l'ajuster.</Text>
+          <Text style={styles.sousLibelle}>
+            Repère Harvard : 21 par mois, glissant sur les 30 derniers jours. À vous de l'ajuster.
+          </Text>
           <Slider
             minimumValue={5}
             maximumValue={40}
@@ -114,6 +127,30 @@ export default function Parametres() {
             <Text style={styles.repereTexte}>5</Text>
             <Text style={styles.repereTexte}>21</Text>
             <Text style={styles.repereTexte}>40</Text>
+          </View>
+        </View>
+
+        <View style={[styles.carte, { marginTop: 14 }]}>
+          <View style={styles.ligneEntreBords}>
+            <Text style={styles.libelle}>Objectif hebdomadaire</Text>
+            <Text style={styles.objectifValeur}>{objectifSemaine}</Text>
+          </View>
+          <Text style={styles.sousLibelle}>Semaine en cours (lundi à dimanche).</Text>
+          <Slider
+            minimumValue={1}
+            maximumValue={14}
+            step={1}
+            value={objectifSemaine}
+            onSlidingComplete={surChangementObjectifSemaine}
+            minimumTrackTintColor={c.accent}
+            maximumTrackTintColor={c.line}
+            thumbTintColor={c.accent}
+            style={{ marginTop: 16 }}
+          />
+          <View style={styles.ligneEntreBords}>
+            <Text style={styles.repereTexte}>1</Text>
+            <Text style={styles.repereTexte}>3</Text>
+            <Text style={styles.repereTexte}>14</Text>
           </View>
         </View>
 

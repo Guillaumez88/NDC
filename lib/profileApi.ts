@@ -34,6 +34,7 @@ export async function creerProfil(
     pseudoAffichage,
     pseudoSlug,
     objectifMensuel: 21,
+    objectifHebdomadaire: 3,
     verrouillageActif: false,
     theme: 'clair',
     creeLe: serverTimestamp(),
@@ -72,6 +73,12 @@ export async function updateObjectifMensuel(objectif: number): Promise<void> {
   const uid = auth.currentUser?.uid;
   if (!uid) throw new Error('Non connecté.');
   await updateDoc(refProfil(uid), { objectifMensuel: objectif });
+}
+
+export async function updateObjectifHebdomadaire(objectif: number): Promise<void> {
+  const uid = auth.currentUser?.uid;
+  if (!uid) throw new Error('Non connecté.');
+  await updateDoc(refProfil(uid), { objectifHebdomadaire: objectif });
 }
 
 export async function updateVerrouillageActif(actif: boolean): Promise<void> {

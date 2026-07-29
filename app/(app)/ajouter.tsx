@@ -94,7 +94,7 @@ export default function Ajouter() {
         <View style={styles.carteToggle}>
           <View style={{ flex: 1 }}>
             <Text style={styles.toggleTitre}>Éjaculatoire</Text>
-            <Text style={styles.toggleSousTitre}>Compte pour l'objectif du mois</Text>
+            <Text style={styles.toggleSousTitre}>Compte pour les objectifs</Text>
           </View>
           <Pressable
             onPress={() => setEjaculatoire((v) => !v)}

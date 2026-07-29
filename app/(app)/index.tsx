@@ -3,9 +3,10 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useSessions } from '../../hooks/useSessions';
-import { useMonthProgress } from '../../hooks/useMonthProgress';
+import { useProgression } from '../../hooks/useProgression';
 import { JaugeCirculaire } from '../../components/JaugeCirculaire';
 import { IllustrationSymbolique } from '../../components/IllustrationSymbolique';
+import { SemaineCases } from '../../components/SemaineCases';
 import { BarreInferieure } from '../../components/BarreInferieure';
 
 function salutation(): string {
@@ -20,7 +21,11 @@ export default function Accueil() {
   const { profile } = useAuth();
   const { themeName, couleurs: c, basculerTheme } = useTheme();
   const { seances, chargement } = useSessions();
-  const progression = useMonthProgress(seances, profile?.objectifMensuel ?? 21);
+  const progression = useProgression(
+    seances,
+    profile?.objectifMensuel ?? 21,
+    profile?.objectifHebdomadaire ?? 3
+  );
   const styles = useMemo(() => creerStyles(c), [c]);
 
   if (chargement && !profile) {
@@ -47,9 +52,9 @@ export default function Accueil() {
         <View style={styles.carte}>
           <JaugeCirculaire pourcentage={progression.ringPct} couleurs={c}>
             <View style={styles.jaugeCentre}>
-              <Text style={styles.jaugeNombre}>{progression.monthCount}</Text>
-              <Text style={styles.jaugeLegende}>sur {progression.goal} ce mois</Text>
-              <Text style={styles.jaugeSousLegende}>{progression.ringPct}% du repère</Text>
+              <Text style={styles.jaugeNombre}>{progression.rollingCount}</Text>
+              <Text style={styles.jaugeLegende}>sur {progression.goal} (30 derniers jours)</Text>
+              <Text style={styles.jaugeSousLegende}>{progression.ringPct}% de l'objectif</Text>
             </View>
           </JaugeCirculaire>
           <Text style={styles.encourage}>{progression.encourage}</Text>
@@ -58,21 +63,20 @@ export default function Accueil() {
         <View style={[styles.carte, styles.carteDerniere]}>
           <IllustrationSymbolique palierIndex={progression.palierIndex} couleurs={c} />
           <View style={styles.derniereTexte}>
-            <Text style={styles.derniereEtiquette}>Depuis la dernière fois</Text>
+            <Text style={styles.derniereEtiquette}>Depuis ta dernière éjac</Text>
             <Text style={styles.derniereValeur}>{progression.elapsed}</Text>
             <Text style={styles.derniereLibelle}>{progression.phaseLabel}</Text>
           </View>
         </View>
 
-        <View style={styles.grille2col}>
-          <View style={styles.miniCarte}>
-            <Text style={styles.miniChiffre}>{progression.weekCount}</Text>
-            <Text style={styles.miniLegende}>cette semaine</Text>
+        <View style={[styles.carte, styles.carteSemaine]}>
+          <View style={styles.semaineEntete}>
+            <Text style={styles.semaineTitre}>Cette semaine</Text>
+            <Text style={styles.semaineChiffre}>
+              {progression.semaineCount}/{progression.objectifHebdomadaire}
+            </Text>
           </View>
-          <View style={styles.miniCarte}>
-            <Text style={styles.miniChiffre}>{progression.paceLabel}</Text>
-            <Text style={styles.miniLegende}>rythme / semaine</Text>
-          </View>
+          <SemaineCases jours={progression.semaineJours} couleurs={c} />
         </View>
 
         <View style={styles.disclaimer}>
@@ -141,10 +145,10 @@ function creerStyles(c: ReturnType<typeof useTheme>['couleurs']) {
     },
     derniereValeur: { fontSize: 30, fontWeight: '700', color: c.ink, marginTop: 4 },
     derniereLibelle: { fontSize: 13, color: c.ink2, marginTop: 5 },
-    grille2col: { flexDirection: 'row', gap: 12, marginTop: 14 },
-    miniCarte: { flex: 1, backgroundColor: c.card2, borderRadius: 26, padding: 18 },
-    miniChiffre: { fontSize: 26, fontWeight: '700', color: c.ink },
-    miniLegende: { fontSize: 12.5, color: c.ink2, marginTop: 2 },
+    carteSemaine: { alignItems: 'stretch', marginTop: 16, padding: 20 },
+    semaineEntete: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14 },
+    semaineTitre: { fontSize: 15, fontWeight: '600', color: c.ink },
+    semaineChiffre: { fontSize: 15, fontWeight: '700', color: c.accent },
     disclaimer: {
       marginTop: 14,
       padding: 18,
